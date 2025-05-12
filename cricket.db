@@ -1,82 +1,70 @@
-CREATE TABLE Teams (
-    TeamID INT PRIMARY KEY,
-    TeamName VARCHAR(100),
-    Founded DATE
-);
+Here’s a **Cricket Tournament Management System** SQL project:
 
+```sql
 CREATE TABLE Players (
     PlayerID INT PRIMARY KEY,
     FullName VARCHAR(100),
-    TeamID INT,
-    Role VARCHAR(50),
-    BirthDate DATE,
-    FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
+    Team VARCHAR(50),
+    Position VARCHAR(50)
 );
 
 CREATE TABLE Matches (
     MatchID INT PRIMARY KEY,
     Date DATE,
-    Team1ID INT,
-    Team2ID INT,
-    WinnerTeamID INT,
-    FOREIGN KEY (Team1ID) REFERENCES Teams(TeamID),
-    FOREIGN KEY (Team2ID) REFERENCES Teams(TeamID),
-    FOREIGN KEY (WinnerTeamID) REFERENCES Teams(TeamID)
+    Venue VARCHAR(100),
+    TeamA VARCHAR(50),
+    TeamB VARCHAR(50),
+    Winner VARCHAR(50)
 );
 
-CREATE TABLE PlayerStatistics (
-    StatID INT PRIMARY KEY,
-    PlayerID INT,
+CREATE TABLE Scorecards (
+    ScorecardID INT PRIMARY KEY,
     MatchID INT,
+    PlayerID INT,
     Runs INT,
     Wickets INT,
-    Catches INT,
-    FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID),
-    FOREIGN KEY (MatchID) REFERENCES Matches(MatchID)
+    FOREIGN KEY (MatchID) REFERENCES Matches(MatchID),
+    FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID)
 );
 
--- Insert sample teams
-INSERT INTO Teams VALUES 
-(1, 'India', '1932-12-25'),
-(2, 'Australia', '1882-12-01'),
-(3, 'England', '1877-03-15');
-
--- Insert players
+-- Inserting sample data for Players
 INSERT INTO Players VALUES 
-(1, 'Virat Kohli', 1, 'Batsman', '1988-11-05'),
-(2, 'Steve Smith', 2, 'Batsman', '1989-06-02'),
-(3, 'Ben Stokes', 3, 'All-rounder', '1991-06-04');
+(1, 'Virat Kohli', 'India', 'Batsman'),
+(2, 'Rohit Sharma', 'India', 'Batsman'),
+(3, 'David Warner', 'Australia', 'Batsman'),
+(4, 'Steve Smith', 'Australia', 'Batsman');
 
--- Insert sample matches
+-- Inserting sample data for Matches
 INSERT INTO Matches VALUES 
-(1, '2024-03-01', 1, 2, 1),
-(2, '2024-03-03', 2, 3, 2);
+(101, '2024-03-01', 'Wankhede Stadium', 'India', 'Australia', 'India'),
+(102, '2024-03-05', 'Melbourne Cricket Ground', 'India', 'Australia', 'Australia');
 
--- Insert player statistics
-INSERT INTO PlayerStatistics VALUES 
-(1, 1, 1, 50, 0, 1),  -- Virat Kohli in Match 1: 50 runs, no wickets, 1 catch
-(2, 2, 1, 70, 1, 0),  -- Steve Smith in Match 1: 70 runs, 1 wicket, 0 catches
-(3, 3, 2, 40, 2, 1);  -- Ben Stokes in Match 2: 40 runs, 2 wickets, 1 catch
+-- Inserting sample data for Scorecards
+INSERT INTO Scorecards VALUES 
+(1, 101, 1, 50, 0),
+(2, 101, 2, 70, 0),
+(3, 102, 3, 30, 1),
+(4, 102, 4, 40, 2);
 
--- Query to find the teams with the most recent match result
-SELECT m.Date, t1.TeamName AS Team1, t2.TeamName AS Team2, wt.TeamName AS Winner
-FROM Matches m
-JOIN Teams t1 ON m.Team1ID = t1.TeamID
-JOIN Teams t2 ON m.Team2ID = t2.TeamID
-JOIN Teams wt ON m.WinnerTeamID = wt.TeamID
-ORDER BY m.Date DESC LIMIT 1;
+-- Query to get all players who scored runs in a match
+SELECT p.FullName, s.Runs, s.Wickets, m.Date
+FROM Scorecards s
+JOIN Players p ON s.PlayerID = p.PlayerID
+JOIN Matches m ON s.MatchID = m.MatchID
+WHERE s.Runs > 0;
 
--- Query to view player statistics for a match
-SELECT p.FullName, ps.Runs, ps.Wickets, ps.Catches
-FROM PlayerStatistics ps
-JOIN Players p ON ps.PlayerID = p.PlayerID
-WHERE ps.MatchID = 1;
+-- Query to get the winner of each match
+SELECT m.Date, m.Venue, m.Winner 
+FROM Matches m;
 
--- Update the player's statistics (e.g., for a match played recently)
-UPDATE PlayerStatistics 
-SET Runs = 80 
-WHERE StatID = 1;  -- Update for Virat Kohli
+-- Query to update the runs scored by a player in a match
+UPDATE Scorecards SET Runs = 80 WHERE ScorecardID = 2;
 
--- Query to delete a match and its related player statistics
-DELETE FROM PlayerStatistics WHERE MatchID = 1;
-DELETE FROM Matches WHERE MatchID = 1;
+-- Query to update the match winner
+UPDATE Matches SET Winner = 'India' WHERE MatchID = 102;
+
+-- Query to delete a scorecard entry
+DELETE FROM Scorecards WHERE ScorecardID = 3;
+```
+
+
